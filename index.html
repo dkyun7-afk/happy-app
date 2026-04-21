@@ -5,14 +5,14 @@
     <meta property="og:title" content="행복한오늘 매니저 시스템">
     <meta property="og:description" content="스마트 노무 & 인사 관리 플랫폼 (가맹점 전용)">
     
-    <meta property="og:image" content="https://drive.google.com/file/d/1YUj1lRkwksxIcPR1QOnV3uJiClrwwbPG/view?usp=drive_link">
+    <meta property="og:image" content="https://drive.google.com/uc?export=view&id=1YUj1lRkwksxIcPR1QOnV3uJiClrwwbPG">
 
     <title>행복한오늘 매니저</title>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const franchiseId = urlParams.get('id') || '본점';
 
-        // ✅ 오빠가 주신 주소를 정확하게 넣어뒀습니다!
+        // ✅ 오빠의 구글 앱 주소
         const googleAppUrl = "https://script.google.com/macros/s/AKfycbxdsAoEPDwTB4Ypb2Maxx4msqb2Fb4aVIn_wqUVkmPtavZP0LX6v77HjkYq9FZlDEwB/exec";
 
         window.location.replace(googleAppUrl + "?id=" + franchiseId);
