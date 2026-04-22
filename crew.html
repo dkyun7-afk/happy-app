@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행복 크루 라운지 - 나의 알바 지갑</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f1f3f5; margin: 0; padding-bottom: 70px; }
+        .app-shell { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #387b3b; color: white; padding: 25px 20px; border-radius: 0 0 25px 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .profile-img { width: 50px; height: 50px; border-radius: 50%; background: #eee; border: 2px solid white; }
+        .store-selector { background: rgba(255,255,255,0.2); padding: 10px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .main-card { margin: -30px 20px 20px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .card-label { font-size: 0.9rem; color: #666; margin-bottom: 8px; }
+        .amount { font-size: 1.8rem; font-weight: 800; color: #333; }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
+        .menu-item { background: #f8f9fa; padding: 20px; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); background: #e9ecef; }
+        .menu-icon { font-size: 1.8rem; margin-bottom: 10px; }
+        .menu-label { font-size: 0.95rem; font-weight: 600; color: #444; }
+
+        .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; }
+        .nav-item { text-align: center; color: #999; font-size: 0.8rem; text-decoration: none; }
+        .nav-item.active { color: #387b3b; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <div class="header">
+            <div class="user-info">
+                <div class="profile-img"></div>
+                <div><span style="font-size:1.2rem; font-weight:bold;">홍길동 크루님</span><br><span style="font-size:0.85rem; opacity:0.8;">오늘도 행복한 하루 되세요!</span></div>
+            </div>
+            <div class="store-selector">
+                <span id="storeName" style="font-weight:bold;">행복한오늘 강남본점</span>
+                <span style="font-size:0.8rem;">▼ 매장변경</span>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="card-label">이번 달 정산 예정 금액</div>
+            <div class="amount">1,254,320원</div>
+            <div style="margin-top:15px; font-size:0.8rem; color:#387b3b; font-weight:bold;">● 실시간 예상 급여 (주휴 포함)</div>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item">
+                <div class="menu-icon">📑</div>
+                <div class="menu-label">전자 근로계약서</div>
+            </div>
+            <div class="menu-item" style="border: 2px solid #387b3b; background: #f0fdf4;">
+                <div class="menu-icon">⏰</div>
+                <div class="menu-label">출퇴근 기록</div>
+            </div>
+            <div class="menu-item">
+                <div class="menu-icon">💰</div>
+                <div class="menu-label">급여 명세서</div>
+            </div>
+            <div class="menu-item">
+                <div class="menu-icon">🎖️</div>
+                <div class="menu-label">나의 평판/경력</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <a href="#" class="nav-item active">🏠<br>홈</a>
+        <a href="#" class="nav-item">💼<br>일자리</a>
+        <a href="#" class="nav-item">🔔<br>알림</a>
+        <a href="#" class="nav-item">👤<br>마이</a>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id') || '등록된 매장 없음';
+        document.getElementById('storeName').innerText = id;
+    </script>
+</body>
+</html>
