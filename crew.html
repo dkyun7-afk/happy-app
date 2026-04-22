@@ -3,92 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <meta property="og:title" content="행복 크루 라운지 - 나의 알바 지갑">
-    <meta property="og:description" content="이번 달 내 월급과 출퇴근을 실시간으로 확인하세요!">
-    <meta property="og:image" content="https://drive.google.com/uc?export=view&id=1YUj1lRkwksxIcPR1QOnV3uJiClrwwbPG">
-    
-    <title>행복 크루 라운지 - 나의 알바 지갑</title>
+    <meta property="og:title" content="행복 크루 라운지">
+    <meta property="og:description" content="내 알바비와 출퇴근을 가장 세련되게 관리하세요.">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <title>행복 크루 라운지</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #f1f3f5; margin: 0; padding-bottom: 70px; }
-        .app-shell { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #387b3b; color: white; padding: 25px 20px; border-radius: 0 0 25px 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .profile-img { width: 50px; height: 50px; border-radius: 50%; background: #eee; border: 2px solid white; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; }
-        .store-selector { background: rgba(255,255,255,0.2); padding: 10px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f2f4f6; margin: 0; padding-bottom: 90px; color: #333; }
+        .app-shell { max-width: 450px; margin: 0 auto; display: flex; flex-direction: column; padding: 20px; }
         
-        .main-card { margin: -30px 20px 20px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .card-label { font-size: 0.9rem; color: #666; margin-bottom: 8px; }
-        .amount { font-size: 1.8rem; font-weight: 800; color: #333; }
+        /* 상단 헤더 & 매장 선택 */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; margin-top: 10px; }
+        .greeting { font-size: 1.4rem; font-weight: 700; }
+        .store-pill { background: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: #4e5968; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; display: flex; align-items: center; gap: 5px; }
         
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
-        .menu-item { background: #f8f9fa; padding: 20px; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .menu-item:active { transform: scale(0.95); background: #e9ecef; }
-        .menu-icon { font-size: 1.8rem; margin-bottom: 10px; }
-        .menu-label { font-size: 0.95rem; font-weight: 600; color: #444; }
+        /* 핵심: 내 지갑 (토스 스타일 그라데이션 카드) */
+        .wallet-card { background: linear-gradient(135deg, #2b7a3b, #1e5a2a); border-radius: 24px; padding: 30px 25px; color: white; box-shadow: 0 10px 20px rgba(43,122,59,0.2); margin-bottom: 25px; position: relative; overflow: hidden; }
+        .wallet-card::after { content: '💰'; font-size: 6rem; position: absolute; right: -10px; bottom: -20px; opacity: 0.1; }
+        .wallet-label { font-size: 0.95rem; opacity: 0.9; margin-bottom: 10px; }
+        .wallet-amount { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 15px; }
+        .wallet-detail { font-size: 0.85rem; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 12px; border-radius: 12px; backdrop-filter: blur(4px); }
 
-        .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 100; }
-        .nav-item { text-align: center; color: #999; font-size: 0.8rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: #387b3b; font-weight: bold; }
+        /* 핵심: 왕버튼 (출퇴근) */
+        .action-btn { background: #ffffff; width: 100%; border: none; padding: 22px; border-radius: 20px; font-size: 1.2rem; font-weight: 700; color: #191f28; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; cursor: pointer; transition: 0.2s; }
+        .action-btn:active { transform: scale(0.98); background: #f9f9f9; }
+        
+        /* 서브 메뉴 그리드 */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-card { background: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; height: 90px; }
+        .menu-card:active { transform: scale(0.97); }
+        .menu-icon { font-size: 1.5rem; }
+        .menu-title { font-size: 1rem; font-weight: 600; color: #333; }
+
+        /* 하단 네비게이션 바 */
+        .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 15px 0 25px 0; border-top: 1px solid #f1f3f5; border-radius: 30px 30px 0 0; }
+        .nav-item { text-align: center; color: #b0b8c1; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 60px; }
+        .nav-item.active { color: #2b7a3b; font-weight: 700; }
+        .nav-icon { font-size: 1.4rem; }
     </style>
 </head>
 <body>
     <div class="app-shell">
+        
         <div class="header">
-            <div class="user-info">
-                <div class="profile-img">👤</div>
-                <div><span id="crewNameDisplay" style="font-size:1.2rem; font-weight:bold;">크루님</span><br><span style="font-size:0.85rem; opacity:0.8;">오늘도 행복한 하루 되세요!</span></div>
-            </div>
-            <div class="store-selector" onclick="alert('다른 가맹점으로 전환하는 기능은 준비 중입니다!')">
-                <span id="storeName" style="font-weight:bold;">가맹점</span>
-                <span style="font-size:0.8rem;">▼ 매장변경</span>
+            <div class="greeting"><span id="crewNameDisplay" style="color:#2b7a3b;">크루</span>님,<br>반가워요! 👋</div>
+            <div class="store-pill" onclick="alert('가맹점 스위치 기능 준비 중!')">
+                <span id="storeName">가맹점</span> ▾
             </div>
         </div>
 
-        <div class="main-card">
-            <div class="card-label">이번 달 정산 예정 금액</div>
-            <div class="amount">1,254,320원</div>
-            <div style="margin-top:15px; font-size:0.8rem; color:#387b3b; font-weight:bold;">● 실시간 예상 급여 (주휴 포함)</div>
+        <div class="wallet-card">
+            <div class="wallet-label">이번 달 정산 예정 금액</div>
+            <div class="wallet-amount">1,254,320원</div>
+            <div class="wallet-detail">✨ 주휴수당 154,320원 포함</div>
         </div>
+
+        <button class="action-btn" onclick="alert('⏰ 출근 처리가 완료되었습니다!\n오늘도 안전하게 일하세요!')">
+            <span style="font-size: 1.5rem;">📸</span> 1초 만에 출근 도장 찍기
+        </button>
 
         <div class="menu-grid">
-            <div class="menu-item" onclick="alert('사장님이 보낸 전자 근로계약서 뷰어로 이동합니다.')">
-                <div class="menu-icon">📑</div>
-                <div class="menu-label">전자 근로계약서</div>
+            <div class="menu-card" onclick="alert('서명 완료된 전자 근로계약서입니다.')">
+                <div class="menu-icon">📄</div>
+                <div class="menu-title">근로계약서</div>
             </div>
-            <div class="menu-item" style="border: 2px solid #387b3b; background: #f0fdf4;" onclick="alert('찰칵! ⏰ 출근 기록이 등록되었습니다.\n(실제 앱에서는 GPS 위치를 확인합니다)')">
-                <div class="menu-icon">⏰</div>
-                <div class="menu-label">출퇴근 기록 (클릭!)</div>
+            <div class="menu-card" onclick="alert('이번 달 상세 급여 내역입니다.')">
+                <div class="menu-icon">🧾</div>
+                <div class="menu-title">급여 명세서</div>
             </div>
-            <div class="menu-item" onclick="alert('상세 급여 명세서 페이지로 이동합니다.')">
-                <div class="menu-icon">💰</div>
-                <div class="menu-label">급여 명세서</div>
+            <div class="menu-card" onclick="alert('지금까지 지각 0회! 훌륭합니다.')">
+                <div class="menu-icon">🌟</div>
+                <div class="menu-title">나의 평판</div>
             </div>
-            <div class="menu-item" onclick="alert('나의 성실도(지각/결근 내역) 확인 페이지입니다.')">
-                <div class="menu-icon">🎖️</div>
-                <div class="menu-label">나의 평판/경력</div>
+            <div class="menu-card" onclick="alert('급여 통장 및 개인정보 설정')">
+                <div class="menu-icon">⚙️</div>
+                <div class="menu-title">설정</div>
             </div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <a href="#" class="nav-item active"><span style="font-size:1.2rem;">🏠</span>홈</a>
-        <a href="#" class="nav-item" onclick="alert('행복한오늘 제휴 매장 알바자리 추천 중...')"><span style="font-size:1.2rem;">💼</span>일자리</a>
-        <a href="#" class="nav-item"><span style="font-size:1.2rem;">🔔</span>알림</a>
-        <a href="#" class="nav-item"><span style="font-size:1.2rem;">👤</span>마이</a>
+        <a href="#" class="nav-item active"><span class="nav-icon">🏠</span><span style="font-size:0.75rem;">홈</span></a>
+        <a href="#" class="nav-item"><span class="nav-icon">💼</span><span style="font-size:0.75rem;">일자리</span></a>
+        <a href="#" class="nav-item"><span class="nav-icon">🔔</span><span style="font-size:0.75rem;">알림</span></a>
+        <a href="#" class="nav-item"><span class="nav-icon">👤</span><span style="font-size:0.75rem;">마이</span></a>
     </div>
 
     <script>
-        // 주소창에서 정보 가져오기 (예: ?store=행복한오늘&name=김도균)
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // store가 없으면 '행복한오늘 강남본점'으로, name이 없으면 '홍길동'으로 기본 세팅
-        const storeId = urlParams.get('store') || '행복한오늘 강남본점';
+        const storeId = urlParams.get('store') || '행복한오늘 본점';
         const crewName = urlParams.get('name') || '홍길동';
 
-        // 화면에 글자 집어넣기
         document.getElementById('storeName').innerText = storeId;
-        document.getElementById('crewNameDisplay').innerText = crewName + " 크루님";
+        document.getElementById('crewNameDisplay').innerText = crewName;
     </script>
 </body>
 </html>
