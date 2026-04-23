@@ -13,15 +13,22 @@
         .greeting { font-size: 1.4rem; font-weight: 700; }
         .store-pill { background: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: #4e5968; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; }
         
-        .wallet-card { background: linear-gradient(135deg, #2b7a3b, #1e5a2a); border-radius: 24px; padding: 30px 25px; color: white; box-shadow: 0 10px 20px rgba(43,122,59,0.2); margin-bottom: 25px; position: relative; overflow: hidden; }
+        .wallet-card { background: linear-gradient(135deg, #2b7a3b, #1e5a2a); border-radius: 24px; padding: 30px 25px; color: white; box-shadow: 0 10px 20px rgba(43,122,59,0.2); margin-bottom: 20px; position: relative; overflow: hidden; }
         .wallet-card::after { content: '💰'; font-size: 6rem; position: absolute; right: -10px; bottom: -20px; opacity: 0.1; }
         .wallet-label { font-size: 0.95rem; opacity: 0.9; margin-bottom: 10px; }
         .wallet-amount { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 15px; }
         .wallet-detail { font-size: 0.85rem; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 12px; border-radius: 12px; backdrop-filter: blur(4px); }
 
-        .action-btn { background: #ffffff; width: 100%; border: none; padding: 22px; border-radius: 20px; font-size: 1.2rem; font-weight: 700; color: #191f28; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; cursor: pointer; transition: 0.2s; }
-        .action-btn:active { transform: scale(0.98); background: #f9f9f9; }
+        /* 새로운 2버튼 스타일 */
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .action-btn { flex: 1; border: none; padding: 18px 10px; border-radius: 16px; font-size: 1.1rem; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; transition: 0.2s; }
+        .action-btn:active { transform: scale(0.96); }
+        .btn-in { background: #2b7a3b; color: white; }
+        .btn-out { background: #ffffff; color: #191f28; border: 1px solid #eaeaea; }
         
+        /* 추가 근무 요청 링크 */
+        .adjust-link { text-align: center; font-size: 0.85rem; color: #888; margin-bottom: 25px; text-decoration: underline; cursor: pointer; }
+
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-card { background: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; height: 90px; }
         .menu-card:active { transform: scale(0.97); }
@@ -33,7 +40,6 @@
         .nav-item.active { color: #2b7a3b; font-weight: 700; }
         .nav-icon { font-size: 1.4rem; }
         
-        /* 버튼 비활성화 (통신 중) */
         .loading-btn { opacity: 0.7; pointer-events: none; }
     </style>
 </head>
@@ -41,9 +47,7 @@
     <div class="app-shell">
         <div class="header">
             <div class="greeting"><span id="crewNameDisplay" style="color:#2b7a3b;">크루</span>님,<br>반가워요! 👋</div>
-            <div class="store-pill" onclick="alert('가맹점 스위치 기능 준비 중!')">
-                <span id="storeName">가맹점</span> ▾
-            </div>
+            <div class="store-pill" onclick="alert('가맹점 스위치 기능 준비 중!')"><span id="storeName">가맹점</span> ▾</div>
         </div>
 
         <div class="wallet-card">
@@ -52,9 +56,18 @@
             <div class="wallet-detail">✨ 주휴수당 154,320원 포함</div>
         </div>
 
-        <button id="commuteBtn" class="action-btn" onclick="recordCommute()">
-            <span style="font-size: 1.5rem;">📸</span> 1초 만에 출퇴근 기록하기
-        </button>
+        <div class="btn-group">
+            <button id="btnIn" class="action-btn btn-in" onclick="recordCommute('IN')">
+                <span style="font-size: 1.5rem;">🏃‍♂️</span> 출근하기
+            </button>
+            <button id="btnOut" class="action-btn btn-out" onclick="recordCommute('OUT')">
+                <span style="font-size: 1.5rem;">🏠</span> 퇴근하기
+            </button>
+        </div>
+        
+        <div class="adjust-link" onclick="alert('점주님께 추가 근무(연장/야간) 및 시간 수정을 요청하는 기능입니다. 곧 업데이트 됩니다!')">
+            깜빡했거나 연장 근무를 하셨나요? (시간 수정 요청)
+        </div>
 
         <div class="menu-grid">
             <div class="menu-card" onclick="alert('서명 완료된 전자 근로계약서입니다.')">
@@ -81,20 +94,22 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const storeId = urlParams.get('store') || '행복한오늘 본점';
-        const crewName = urlParams.get('name') || '홍길동';
+        const storeId = urlParams.get('store') || '이화발레학원';
+        const crewName = urlParams.get('name') || '여덩이';
 
         document.getElementById('storeName').innerText = storeId;
         document.getElementById('crewNameDisplay').innerText = crewName;
 
-        // ★ 오빠가 발급받은 진짜 심장 주소 장착 완료! ★
         const googleAppUrl = "https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec";
 
-        // 출퇴근 구글 시트로 쏘기!
-        function recordCommute() {
-            const isCheckIn = confirm("지금 매장에 도착하셨나요? \n\n[확인]을 누르면 '출근', [취소]를 누르면 '퇴근'으로 기록됩니다.");
-            const type = isCheckIn ? "IN" : "OUT";
-            const btn = document.getElementById('commuteBtn');
+        function recordCommute(type) {
+            // 타입에 따라 안내 문구를 다르게 설정!
+            const confirmMsg = type === "IN" ? "출근 처리하시겠습니까?" : "퇴근 처리하시겠습니까?";
+            
+            if (!confirm(confirmMsg)) return; // 취소 누르면 아무것도 안 함
+            
+            const btn = type === "IN" ? document.getElementById('btnIn') : document.getElementById('btnOut');
+            const originalHtml = btn.innerHTML;
             
             btn.classList.add('loading-btn');
             btn.innerHTML = `<span style="font-size: 1.5rem;">⏳</span> 기록 중...`;
@@ -113,7 +128,7 @@
             .then(res => res.json())
             .then(res => {
                 btn.classList.remove('loading-btn');
-                btn.innerHTML = `<span style="font-size: 1.5rem;">📸</span> 1초 만에 출퇴근 기록하기`;
+                btn.innerHTML = originalHtml;
                 
                 if(res.result === "success") {
                     alert(type === "IN" ? "출근 완료! 오늘도 화이팅하세요! 🚀" : "퇴근 완료! 정말 수고하셨습니다! 🌙");
@@ -121,7 +136,7 @@
             })
             .catch(error => {
                 btn.classList.remove('loading-btn');
-                btn.innerHTML = `<span style="font-size: 1.5rem;">📸</span> 1초 만에 출퇴근 기록하기`;
+                btn.innerHTML = originalHtml;
                 alert("통신 중 오류가 발생했습니다. 다시 눌러주세요.");
             });
         }
