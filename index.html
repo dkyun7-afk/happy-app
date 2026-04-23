@@ -6,29 +6,21 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <title>행복한오늘 - 사장님 통합 매니저</title>
     <style>
+        /* 기존 스타일 유지 */
         body { font-family: 'Pretendard', sans-serif; background-color: #f2f4f6; margin: 0; padding-bottom: 50px; color: #333; }
         .app-header { background: #191f28; color: white; padding: 25px 20px; border-radius: 0 0 25px 25px; }
         .greeting { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; }
         .sub-greeting { font-size: 0.9rem; color: #8b95a1; }
-        
         .container { padding: 20px; }
-        
-        /* 🚨 상단 알림 배너 스타일 */
         #alertBanner { display: none; background: #fff5f5; border: 1px solid #ff000033; padding: 15px; border-radius: 16px; margin-bottom: 20px; cursor: pointer; border-left: 5px solid #e74c3c; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
         .alert-text { font-weight: bold; color: #e74c3c; font-size: 0.95rem; }
-
-        /* 섹션 타이틀 */
         .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; color: #333; display: flex; align-items: center; justify-content: space-between; }
-        
-        /* 메뉴 카드 그리드 */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
         .menu-card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; text-align: center; }
         .menu-card:active { transform: scale(0.97); }
         .menu-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
         .menu-label { font-weight: 600; font-size: 0.95rem; }
-
-        /* 결재 카드 스타일 (통합됨) */
         .req-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 5px solid #d97706; }
         .req-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
         .crew-name { font-size: 1.1rem; font-weight: bold; }
@@ -38,6 +30,18 @@
         .btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; }
         .btn-reject { background: #f2f4f6; color: #e74c3c; }
         .btn-approve { background: #387b3b; color: white; }
+
+        /* 🔥 신규: 알바 등록 (초대장) 모달 스타일 🔥 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 85%; max-width: 350px; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: #191f28; text-align: center; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 8px; font-weight: 600; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Pretendard'; font-size: 1rem; box-sizing: border-box; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 25px; }
+        .modal-btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 1rem; border: none; cursor: pointer; }
+        .btn-cancel { background: #f2f4f6; color: #4e5968; }
+        .btn-submit { background: #fae100; color: #333; } /* 카카오톡 노란색 */
     </style>
 </head>
 <body>
@@ -53,8 +57,8 @@
 
         <div class="section-title">매장 관리 메뉴</div>
         <div class="menu-grid">
-            <div class="menu-card" onclick="location.href='pass.html?id='+storeId+'&name=신규알바'">
-                <span class="menu-icon">👤</span><span class="menu-label">알바 등록(링크발송)</span>
+            <div class="menu-card" onclick="openInviteModal()">
+                <span class="menu-icon">💌</span><span class="menu-label">알바 등록(링크발송)</span>
             </div>
             <div class="menu-card" onclick="alert('전체 급여 현황판 준비 중!')">
                 <span class="menu-icon">📊</span><span class="menu-label">월간 급여통계</span>
@@ -78,6 +82,27 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="inviteModal">
+        <div class="modal-content">
+            <div class="modal-title">💌 알바생에게 계약서 보내기</div>
+            <div style="font-size:0.85rem; color:#666; text-align:center; margin-bottom:15px;">
+                번호를 입력하면 카카오톡 알림톡으로<br>전자 근로계약서 링크가 발송됩니다.
+            </div>
+            <div class="input-group">
+                <label>알바생 이름</label>
+                <input type="text" id="newCrewName" placeholder="예: 홍길동">
+            </div>
+            <div class="input-group">
+                <label>휴대폰 번호</label>
+                <input type="tel" id="newCrewPhone" placeholder="- 없이 숫자만 입력">
+            </div>
+            <div class="modal-btns">
+                <button class="modal-btn btn-cancel" onclick="closeInviteModal()">취소</button>
+                <button class="modal-btn btn-submit" onclick="sendAlimtalk()">카톡 보내기 🚀</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const storeId = urlParams.get('id') || '이화발레학원';
@@ -85,12 +110,9 @@
 
         const googleAppUrl = "https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec";
 
-        // 통합 결재 리스트 불러오기
+        // 기존 결재 리스트 불러오기 함수 (생략 없이 유지)
         function loadRequests() {
-            fetch(googleAppUrl, {
-                method: "POST",
-                body: JSON.stringify({ type: "GET_PENDING", storeName: storeId })
-            })
+            fetch(googleAppUrl, { method: "POST", body: JSON.stringify({ type: "GET_PENDING", storeName: storeId }) })
             .then(res => res.json())
             .then(res => {
                 const listDiv = document.getElementById('requestList');
@@ -111,37 +133,56 @@
                 listDiv.innerHTML = "";
 
                 res.requests.forEach(req => {
-                    const card = `
+                    listDiv.innerHTML += `
                         <div class="req-card" id="card-${req.rowIndex}">
-                            <div class="req-header">
-                                <div class="crew-name">👤 ${req.crew}</div>
-                                <div class="req-date">${req.date}</div>
-                            </div>
-                            <div class="req-body">
-                                <b>${req.time}</b> 수정 요청<br>
-                                <span style="font-size:0.85rem; color:#666;">📝 ${req.reason}</span>
-                            </div>
+                            <div class="req-header"><div class="crew-name">👤 ${req.crew}</div><div class="req-date">${req.date}</div></div>
+                            <div class="req-body"><b>${req.time}</b> 수정 요청<br><span style="font-size:0.85rem; color:#666;">📝 ${req.reason}</span></div>
                             <div class="btn-group">
                                 <button class="btn btn-reject" onclick="processReq(${req.rowIndex}, 'REJECT', '${req.crew}')">반려</button>
                                 <button class="btn btn-approve" onclick="processReq(${req.rowIndex}, 'APPROVE', '${req.crew}', '${req.date}', '${req.time}')">승인하기</button>
                             </div>
-                        </div>
-                    `;
-                    listDiv.innerHTML += card;
+                        </div>`;
                 });
             });
         }
 
         function processReq(rowIndex, action, crew, date, time) {
             if(!confirm(`${crew} 크루의 요청을 처리할까요?`)) return;
-            const payload = { type: "PROCESS_PENDING", storeName: storeId, rowIndex: rowIndex, action: action, crewId: crew, workDate: date, adjustTime: time };
-            
-            fetch(googleAppUrl, { method: "POST", body: JSON.stringify(payload) })
+            fetch(googleAppUrl, { method: "POST", body: JSON.stringify({ type: "PROCESS_PENDING", storeName: storeId, rowIndex: rowIndex, action: action, crewId: crew, workDate: date, adjustTime: time }) })
             .then(res => res.json())
             .then(res => { if(res.result === "success") { alert("처리가 완료되었습니다!"); loadRequests(); } });
         }
 
         window.onload = loadRequests;
+
+        // 🔥 신규: 모달창 컨트롤 함수 🔥
+        function openInviteModal() { document.getElementById('inviteModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('inviteModal').style.display = 'none'; }
+        
+        // (함수명 겹침 방지)
+        window.closeInviteModal = function() { document.getElementById('inviteModal').style.display = 'none'; }
+
+        // 🔥 신규: 카카오 알림톡 발송 (시뮬레이션) 🔥
+        function sendAlimtalk() {
+            const name = document.getElementById('newCrewName').value;
+            const phone = document.getElementById('newCrewPhone').value;
+
+            if(!name || !phone) {
+                alert("이름과 휴대폰 번호를 모두 입력해주세요!");
+                return;
+            }
+
+            // 1. (나중을 위한) 구글 서버로 발송 기록 보내는 코드
+            // fetch(googleAppUrl, { method: "POST", body: JSON.stringify({ type: "LOG_INVITE", name: name, phone: phone }) });
+
+            // 2. 알바생에게 전송될 고유 링크 생성 (행복패스로 바로 가는 링크!)
+            const inviteLink = `https://dkyun7-afk.github.io/happy-app/pass.html?id=${encodeURIComponent(storeId)}&name=${encodeURIComponent(name)}`;
+
+            closeInviteModal();
+
+            // 3. 실제 카톡이 날아갔다고 가정하고, 사장님께 확인창 띄우기
+            alert(`[알림톡 전송 완료 시뮬레이션]\n\n${name} 님의 카카오톡(${phone})으로\n계약서 링크가 성공적으로 발송되었습니다!\n\n(※ 현재는 테스트 모드입니다. 알바생에게 아래 링크를 복사해서 전달해주세요.)\n\n${inviteLink}`);
+        }
     </script>
 </body>
 </html>
