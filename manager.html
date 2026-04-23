@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <title>행복 매니저 - 점주 대시보드</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f2f4f6; margin: 0; color: #333; padding-bottom: 50px; }
+        .header { background: #191f28; color: white; padding: 25px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .greeting { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; }
+        .sub-greeting { font-size: 0.9rem; color: #8b95a1; }
+        
+        .container { padding: 20px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; color: #333; display: flex; align-items: center; justify-content: space-between; }
+        
+        .empty-state { text-align: center; padding: 40px 20px; background: white; border-radius: 20px; color: #8b95a1; font-size: 0.95rem; }
+        
+        /* 결재 카드 스타일 */
+        .req-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 5px solid #d97706; }
+        .req-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .crew-name { font-size: 1.1rem; font-weight: bold; color: #191f28; }
+        .req-date { font-size: 0.85rem; color: #8b95a1; background: #f2f4f6; padding: 4px 10px; border-radius: 10px; }
+        .req-body { background: #f9fafb; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.95rem; }
+        .req-highlight { color: #d97706; font-weight: bold; }
+        .req-reason { margin-top: 8px; color: #4e5968; font-size: 0.9rem; line-height: 1.4; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 1rem; border: none; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.97); }
+        .btn-reject { background: #f2f4f6; color: #e74c3c; }
+        .btn-approve { background: #387b3b; color: white; }
+        
+        .loading { text-align: center; padding: 30px; font-size: 1.2rem; font-weight: bold; color: #387b3b; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="greeting"><span id="storeNameDisplay" style="color:#2dd4bf;">가맹점</span> 대표님! 👑</div>
+        <div class="sub-greeting">오늘도 매장 운영하시느라 고생 많으십니다.</div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">
+            <span>🚨 미결재 요청함</span>
+            <span id="reqCount" style="background:#e74c3c; color:white; padding:3px 10px; border-radius:20px; font-size:0.8rem;">0건</span>
+        </div>
+        
+        <div id="requestList">
+            <div class="loading">⏳ 결재 서류함 확인 중...</div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeId = urlParams.get('store') || '이화발레학원';
+        document.getElementById('storeNameDisplay').innerText = storeId;
+
+        // ★ 오빠의 심장 주소 ★
+        const googleAppUrl = "https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec";
+
+        // 1. 대기중인 결재 서류 가져오기
+        function loadRequests() {
+            fetch(googleAppUrl, {
+                method: "POST",
+                body: JSON.stringify({ type: "GET_PENDING", storeName: storeId })
+            })
+            .then(res => res.json())
+            .then(res => {
+                const listDiv = document.getElementById('requestList');
+                const reqCount = document.getElementById('reqCount');
+                
+                if(res.requests.length === 0) {
+                    listDiv.innerHTML = `<div class="empty-state">🎉<br><br>모든 결재가 완료되었습니다!<br>현재 대기 중인 요청이 없습니다.</div>`;
+                    reqCount.innerText = "0건";
+                    return;
+                }
+
+                reqCount.innerText = res.requests.length + "건";
+                listDiv.innerHTML = ""; // 로딩 지우기
+
+                // 가져온 데이터로 카드 만들기
+                res.requests.forEach(req => {
+                    const card = `
+                        <div class="req-card" id="card-${req.rowIndex}">
+                            <div class="req-header">
+                                <div class="crew-name">👤 ${req.crew} 크루</div>
+                                <div class="req-date">${req.date}</div>
+                            </div>
+                            <div class="req-body">
+                                <div>요청 사항: <span class="req-highlight">${req.time}</span></div>
+                                <div class="req-reason">📝 사유: ${req.reason}</div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-reject" onclick="processReq(${req.rowIndex}, 'REJECT', '${req.crew}')">❌ 반려</button>
+                                <button class="btn btn-approve" onclick="processReq(${req.rowIndex}, 'APPROVE', '${req.crew}', '${req.date}', '${req.time}')">✅ 승인하기</button>
+                            </div>
+                        </div>
+                    `;
+                    listDiv.innerHTML += card;
+                });
+            });
+        }
+
+        // 2. 승인/반려 처리하기
+        function processReq(rowIndex, action, crewName, workDate, adjustTime) {
+            const isApprove = action === "APPROVE";
+            if(!confirm(`${crewName} 크루의 요청을 ${isApprove ? "승인" : "반려"} 하시겠습니까?`)) return;
+
+            // 해당 카드를 흐리게 만들어서 누른 티 내기
+            const card = document.getElementById(`card-${rowIndex}`);
+            card.style.opacity = "0.5";
+            card.style.pointerEvents = "none";
+
+            const payload = {
+                type: "PROCESS_PENDING",
+                storeName: storeId,
+                rowIndex: rowIndex,
+                action: action,
+                crewId: crewName,
+                workDate: workDate,
+                adjustTime: adjustTime
+            };
+
+            fetch(googleAppUrl, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.result === "success") {
+                    alert("결재 처리가 완료되었습니다!");
+                    loadRequests(); // 리스트 다시 불러오기
+                }
+            });
+        }
+
+        // 화면 켜지면 바로 데이터 불러오기
+        window.onload = loadRequests;
+    </script>
+</body>
+</html>
