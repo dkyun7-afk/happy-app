@@ -19,15 +19,27 @@
         .wallet-amount { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 15px; }
         .wallet-detail { font-size: 0.85rem; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 12px; border-radius: 12px; backdrop-filter: blur(4px); }
 
-        /* 새로운 2버튼 스타일 */
         .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .action-btn { flex: 1; border: none; padding: 18px 10px; border-radius: 16px; font-size: 1.1rem; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; transition: 0.2s; }
         .action-btn:active { transform: scale(0.96); }
         .btn-in { background: #2b7a3b; color: white; }
         .btn-out { background: #ffffff; color: #191f28; border: 1px solid #eaeaea; }
         
-        /* 추가 근무 요청 링크 */
-        .adjust-link { text-align: center; font-size: 0.85rem; color: #888; margin-bottom: 25px; text-decoration: underline; cursor: pointer; }
+        /* 🔥 눈에 확 띄게 업그레이드 된 추가 근무 배너! 🔥 */
+        .adjust-link { 
+            background-color: #fffbeb; /* 연한 경고/알림 노란색 */
+            color: #d97706; /* 따뜻하고 진한 오렌지색 */
+            text-align: center; 
+            font-size: 0.95rem; 
+            font-weight: 700;
+            padding: 14px; 
+            border-radius: 12px;
+            margin-bottom: 25px; 
+            cursor: pointer; 
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.1);
+            transition: 0.2s;
+        }
+        .adjust-link:active { transform: scale(0.98); background-color: #fef3c7; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-card { background: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; height: 90px; }
@@ -65,8 +77,8 @@
             </button>
         </div>
         
-        <div class="adjust-link" onclick="alert('점주님께 추가 근무(연장/야간) 및 시간 수정을 요청하는 기능입니다. 곧 업데이트 됩니다!')">
-            깜빡했거나 연장 근무를 하셨나요? (시간 수정 요청)
+        <div class="adjust-link" onclick="alert('점주님께 추가 근무(연장/야간) 및 시간 수정을 요청하는 팝업 창이 열릴 예정입니다!')">
+            📝 깜빡했거나 연장 근무를 하셨나요? <span style="text-decoration: underline; font-size: 0.8rem; margin-left: 4px;">수정 요청</span>
         </div>
 
         <div class="menu-grid">
@@ -103,10 +115,9 @@
         const googleAppUrl = "https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec";
 
         function recordCommute(type) {
-            // 타입에 따라 안내 문구를 다르게 설정!
             const confirmMsg = type === "IN" ? "출근 처리하시겠습니까?" : "퇴근 처리하시겠습니까?";
             
-            if (!confirm(confirmMsg)) return; // 취소 누르면 아무것도 안 함
+            if (!confirm(confirmMsg)) return; 
             
             const btn = type === "IN" ? document.getElementById('btnIn') : document.getElementById('btnOut');
             const originalHtml = btn.innerHTML;
