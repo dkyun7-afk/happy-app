@@ -2,25 +2,146 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta property="og:title" content="행복한오늘 매니저 시스템">
-    <meta property="og:description" content="스마트 노무 & 인사 관리 플랫폼 (가맹점 전용)">
-    
-    <meta property="og:image" content="https://drive.google.com/uc?export=view&id=1YUj1lRkwksxIcPR1QOnV3uJiClrwwbPG">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <title>행복한오늘 - 사장님 통합 매니저</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f2f4f6; margin: 0; padding-bottom: 50px; color: #333; }
+        .app-header { background: #191f28; color: white; padding: 25px 20px; border-radius: 0 0 25px 25px; }
+        .greeting { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; }
+        .sub-greeting { font-size: 0.9rem; color: #8b95a1; }
+        
+        .container { padding: 20px; }
+        
+        /* 🚨 상단 알림 배너 스타일 */
+        #alertBanner { display: none; background: #fff5f5; border: 1px solid #ff000033; padding: 15px; border-radius: 16px; margin-bottom: 20px; cursor: pointer; border-left: 5px solid #e74c3c; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
+        .alert-text { font-weight: bold; color: #e74c3c; font-size: 0.95rem; }
 
-    <title>행복한오늘 매니저</title>
+        /* 섹션 타이틀 */
+        .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; color: #333; display: flex; align-items: center; justify-content: space-between; }
+        
+        /* 메뉴 카드 그리드 */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
+        .menu-card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; text-align: center; }
+        .menu-card:active { transform: scale(0.97); }
+        .menu-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+        .menu-label { font-weight: 600; font-size: 0.95rem; }
+
+        /* 결재 카드 스타일 (통합됨) */
+        .req-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 5px solid #d97706; }
+        .req-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .crew-name { font-size: 1.1rem; font-weight: bold; }
+        .req-date { font-size: 0.85rem; color: #8b95a1; }
+        .req-body { background: #f9fafb; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.9rem; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; }
+        .btn-reject { background: #f2f4f6; color: #e74c3c; }
+        .btn-approve { background: #387b3b; color: white; }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <div class="greeting"><span id="storeNameDisplay" style="color:#2dd4bf;"></span> 사장님! 👑</div>
+        <div class="sub-greeting">오늘도 행복한 하루 되세요.</div>
+    </div>
+
+    <div class="container">
+        <div id="alertBanner" onclick="document.getElementById('approvalSection').scrollIntoView({behavior:'smooth'})">
+            <span class="alert-text">🚨 미결재된 연장/수정 요청이 <span id="alertCount">0</span>건 있습니다.</span>
+        </div>
+
+        <div class="section-title">매장 관리 메뉴</div>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="location.href='pass.html?id='+storeId+'&name=신규알바'">
+                <span class="menu-icon">👤</span><span class="menu-label">알바 등록(링크발송)</span>
+            </div>
+            <div class="menu-card" onclick="alert('전체 급여 현황판 준비 중!')">
+                <span class="menu-icon">📊</span><span class="menu-label">월간 급여통계</span>
+            </div>
+            <div class="menu-card" onclick="location.href='https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec?id='+storeId">
+                <span class="menu-icon">⚙️</span><span class="menu-label">노무 시스템 접속</span>
+            </div>
+            <div class="menu-card" onclick="alert('매장 설정 메뉴입니다.')">
+                <span class="menu-icon">🛠️</span><span class="menu-label">매장 환경설정</span>
+            </div>
+        </div>
+
+        <div id="approvalSection">
+            <div class="section-title">
+                <span>📑 결재 대기함</span>
+                <span id="reqCount" style="font-size:0.8rem; color:#8b95a1;">확인 중...</span>
+            </div>
+            <div id="requestList">
+                <div style="text-align:center; padding:30px; color:#8b95a1;">⏳ 데이터를 불러오고 있습니다...</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const franchiseId = urlParams.get('id') || '본점';
+        const storeId = urlParams.get('id') || '이화발레학원';
+        document.getElementById('storeNameDisplay').innerText = storeId;
 
-        // ✅ 오빠의 구글 앱 주소
-        const googleAppUrl = "https://script.google.com/macros/s/AKfycbxdsAoEPDwTB4Ypb2Maxx4msqb2Fb4aVIn_wqUVkmPtavZP0LX6v77HjkYq9FZlDEwB/exec";
+        const googleAppUrl = "https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec";
 
-        window.location.replace(googleAppUrl + "?id=" + franchiseId);
+        // 통합 결재 리스트 불러오기
+        function loadRequests() {
+            fetch(googleAppUrl, {
+                method: "POST",
+                body: JSON.stringify({ type: "GET_PENDING", storeName: storeId })
+            })
+            .then(res => res.json())
+            .then(res => {
+                const listDiv = document.getElementById('requestList');
+                const reqCountText = document.getElementById('reqCount');
+                const alertBanner = document.getElementById('alertBanner');
+                const alertCount = document.getElementById('alertCount');
+                
+                if(res.requests.length === 0) {
+                    listDiv.innerHTML = `<div style="text-align:center; padding:40px; background:white; border-radius:20px; color:#8b95a1;">✅ 모든 결재 완료!</div>`;
+                    reqCountText.innerText = "0건";
+                    alertBanner.style.display = 'none';
+                    return;
+                }
+
+                alertBanner.style.display = 'block';
+                alertCount.innerText = res.requests.length;
+                reqCountText.innerText = res.requests.length + "건";
+                listDiv.innerHTML = "";
+
+                res.requests.forEach(req => {
+                    const card = `
+                        <div class="req-card" id="card-${req.rowIndex}">
+                            <div class="req-header">
+                                <div class="crew-name">👤 ${req.crew}</div>
+                                <div class="req-date">${req.date}</div>
+                            </div>
+                            <div class="req-body">
+                                <b>${req.time}</b> 수정 요청<br>
+                                <span style="font-size:0.85rem; color:#666;">📝 ${req.reason}</span>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-reject" onclick="processReq(${req.rowIndex}, 'REJECT', '${req.crew}')">반려</button>
+                                <button class="btn btn-approve" onclick="processReq(${req.rowIndex}, 'APPROVE', '${req.crew}', '${req.date}', '${req.time}')">승인하기</button>
+                            </div>
+                        </div>
+                    `;
+                    listDiv.innerHTML += card;
+                });
+            });
+        }
+
+        function processReq(rowIndex, action, crew, date, time) {
+            if(!confirm(`${crew} 크루의 요청을 처리할까요?`)) return;
+            const payload = { type: "PROCESS_PENDING", storeName: storeId, rowIndex: rowIndex, action: action, crewId: crew, workDate: date, adjustTime: time };
+            
+            fetch(googleAppUrl, { method: "POST", body: JSON.stringify(payload) })
+            .then(res => res.json())
+            .then(res => { if(res.result === "success") { alert("처리가 완료되었습니다!"); loadRequests(); } });
+        }
+
+        window.onload = loadRequests;
     </script>
-</head>
-<body style="background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
-    <p style="font-family: sans-serif; color: #387b3b; font-weight: bold;">
-        행복한오늘 시스템으로 안전하게 이동 중입니다... 🚀
-    </p>
 </body>
 </html>
