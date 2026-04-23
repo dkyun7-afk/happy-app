@@ -3,47 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="행복 크루 라운지">
-    <meta property="og:description" content="내 알바비와 출퇴근을 가장 세련되게 관리하세요.">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <title>행복 크루 라운지</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f2f4f6; margin: 0; padding-bottom: 90px; color: #333; }
         .app-shell { max-width: 450px; margin: 0 auto; display: flex; flex-direction: column; padding: 20px; }
         
-        /* 상단 헤더 & 매장 선택 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; margin-top: 10px; }
         .greeting { font-size: 1.4rem; font-weight: 700; }
-        .store-pill { background: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: #4e5968; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .store-pill { background: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: #4e5968; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; }
         
-        /* 핵심: 내 지갑 (토스 스타일 그라데이션 카드) */
         .wallet-card { background: linear-gradient(135deg, #2b7a3b, #1e5a2a); border-radius: 24px; padding: 30px 25px; color: white; box-shadow: 0 10px 20px rgba(43,122,59,0.2); margin-bottom: 25px; position: relative; overflow: hidden; }
         .wallet-card::after { content: '💰'; font-size: 6rem; position: absolute; right: -10px; bottom: -20px; opacity: 0.1; }
         .wallet-label { font-size: 0.95rem; opacity: 0.9; margin-bottom: 10px; }
         .wallet-amount { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 15px; }
         .wallet-detail { font-size: 0.85rem; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 12px; border-radius: 12px; backdrop-filter: blur(4px); }
 
-        /* 핵심: 왕버튼 (출퇴근) */
         .action-btn { background: #ffffff; width: 100%; border: none; padding: 22px; border-radius: 20px; font-size: 1.2rem; font-weight: 700; color: #191f28; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; cursor: pointer; transition: 0.2s; }
         .action-btn:active { transform: scale(0.98); background: #f9f9f9; }
         
-        /* 서브 메뉴 그리드 */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-card { background: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; height: 90px; }
         .menu-card:active { transform: scale(0.97); }
         .menu-icon { font-size: 1.5rem; }
         .menu-title { font-size: 1rem; font-weight: 600; color: #333; }
 
-        /* 하단 네비게이션 바 */
         .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 15px 0 25px 0; border-top: 1px solid #f1f3f5; border-radius: 30px 30px 0 0; }
         .nav-item { text-align: center; color: #b0b8c1; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 60px; }
         .nav-item.active { color: #2b7a3b; font-weight: 700; }
         .nav-icon { font-size: 1.4rem; }
+        
+        /* 버튼 비활성화 (통신 중) */
+        .loading-btn { opacity: 0.7; pointer-events: none; }
     </style>
 </head>
 <body>
     <div class="app-shell">
-        
         <div class="header">
             <div class="greeting"><span id="crewNameDisplay" style="color:#2b7a3b;">크루</span>님,<br>반가워요! 👋</div>
             <div class="store-pill" onclick="alert('가맹점 스위치 기능 준비 중!')">
@@ -57,26 +52,22 @@
             <div class="wallet-detail">✨ 주휴수당 154,320원 포함</div>
         </div>
 
-        <button class="action-btn" onclick="alert('⏰ 출근 처리가 완료되었습니다!\n오늘도 안전하게 일하세요!')">
-            <span style="font-size: 1.5rem;">📸</span> 1초 만에 출근 도장 찍기
+        <button id="commuteBtn" class="action-btn" onclick="recordCommute()">
+            <span style="font-size: 1.5rem;">📸</span> 1초 만에 출퇴근 기록하기
         </button>
 
         <div class="menu-grid">
             <div class="menu-card" onclick="alert('서명 완료된 전자 근로계약서입니다.')">
-                <div class="menu-icon">📄</div>
-                <div class="menu-title">근로계약서</div>
+                <div class="menu-icon">📄</div><div class="menu-title">근로계약서</div>
             </div>
             <div class="menu-card" onclick="alert('이번 달 상세 급여 내역입니다.')">
-                <div class="menu-icon">🧾</div>
-                <div class="menu-title">급여 명세서</div>
+                <div class="menu-icon">🧾</div><div class="menu-title">급여 명세서</div>
             </div>
             <div class="menu-card" onclick="alert('지금까지 지각 0회! 훌륭합니다.')">
-                <div class="menu-icon">🌟</div>
-                <div class="menu-title">나의 평판</div>
+                <div class="menu-icon">🌟</div><div class="menu-title">나의 평판</div>
             </div>
             <div class="menu-card" onclick="alert('급여 통장 및 개인정보 설정')">
-                <div class="menu-icon">⚙️</div>
-                <div class="menu-title">설정</div>
+                <div class="menu-icon">⚙️</div><div class="menu-title">설정</div>
             </div>
         </div>
     </div>
@@ -95,6 +86,45 @@
 
         document.getElementById('storeName').innerText = storeId;
         document.getElementById('crewNameDisplay').innerText = crewName;
+
+        // ★ 오빠가 발급받은 진짜 심장 주소 장착 완료! ★
+        const googleAppUrl = "https://script.google.com/macros/s/AKfycbxV-CC7ZZBleE7wS3Q8Ct4B4beGREIHYdPKM0zS2rpVyPlTxGHBJRlUFo4O07hfJRaV/exec";
+
+        // 출퇴근 구글 시트로 쏘기!
+        function recordCommute() {
+            const isCheckIn = confirm("지금 매장에 도착하셨나요? \n\n[확인]을 누르면 '출근', [취소]를 누르면 '퇴근'으로 기록됩니다.");
+            const type = isCheckIn ? "IN" : "OUT";
+            const btn = document.getElementById('commuteBtn');
+            
+            btn.classList.add('loading-btn');
+            btn.innerHTML = `<span style="font-size: 1.5rem;">⏳</span> 기록 중...`;
+            
+            const payload = {
+                type: "COMMUTE",
+                crewId: crewName, 
+                storeName: storeId,
+                commuteType: type
+            };
+
+            fetch(googleAppUrl, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                btn.classList.remove('loading-btn');
+                btn.innerHTML = `<span style="font-size: 1.5rem;">📸</span> 1초 만에 출퇴근 기록하기`;
+                
+                if(res.result === "success") {
+                    alert(type === "IN" ? "출근 완료! 오늘도 화이팅하세요! 🚀" : "퇴근 완료! 정말 수고하셨습니다! 🌙");
+                }
+            })
+            .catch(error => {
+                btn.classList.remove('loading-btn');
+                btn.innerHTML = `<span style="font-size: 1.5rem;">📸</span> 1초 만에 출퇴근 기록하기`;
+                alert("통신 중 오류가 발생했습니다. 다시 눌러주세요.");
+            });
+        }
     </script>
 </body>
 </html>
